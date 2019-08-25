@@ -17,13 +17,13 @@ To convert an pattern expression from unix format to a java regular expression:
 
 ```java
 Pattern pattern = Parsers.parseUnixWildcard("a?bc/*").build(Builders.toPattern());
-````
+```
 
 To convert an pattern expression from unix format to SQL-92 format:
 
 ```java
 String pattern = Parsers.parseUnixWildcard("a?bc/*").build(Builders.toSQL92('\\'));
-````
+```
 
 ## Lossy conversion
 
