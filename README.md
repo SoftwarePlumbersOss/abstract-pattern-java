@@ -22,7 +22,7 @@ Pattern pattern = Parsers.parseUnixWildcard("a?bc/*").build(Builders.toPattern()
 To convert an pattern expression from unix format to SQL-92 format:
 
 ```java
-Pattern pattern = Parsers.parseUnixWildcard("a?bc/*").build(Builders.toSQL92('\\'));
+String pattern = Parsers.parseUnixWildcard("a?bc/*").build(Builders.toSQL92('\\'));
 ````
 
 ## Lossy conversion
