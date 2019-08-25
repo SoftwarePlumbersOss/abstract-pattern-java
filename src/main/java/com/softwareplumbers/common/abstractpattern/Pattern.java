@@ -9,6 +9,7 @@ import com.softwareplumbers.common.abstractpattern.visitor.Builder;
 import com.softwareplumbers.common.abstractpattern.visitor.Builders;
 import com.softwareplumbers.common.abstractpattern.visitor.Visitable;
 import com.softwareplumbers.common.abstractpattern.visitor.Visitor;
+import java.util.Collections;
 import java.util.stream.Stream;
 
 /** Abstract representation of a matching pattern.
@@ -41,6 +42,10 @@ public abstract class Pattern implements Visitable {
         
         @Override 
         public boolean isSimple() { return true; }
+        
+        @Override
+        public String lowerBound() { return ""; }
+
     };
 
         
@@ -64,6 +69,15 @@ public abstract class Pattern implements Visitable {
 
         @Override 
         public boolean isSimple() { return false; }
+        
+        @Override
+        public String lowerBound() { 
+            if (pattern.isSimple()) {
+                return String.join("", Collections.nCopies(count, pattern.lowerBound()));
+            } else {
+                return count == 0 ? "" : pattern.lowerBound();
+            }  
+        }        
     }
     
     private static class CharSequence extends Pattern {
@@ -83,7 +97,9 @@ public abstract class Pattern implements Visitable {
         
         @Override 
         public boolean isSimple() { return true; }
-
+        
+        @Override
+        public String lowerBound() { return sequence; }  
     }
     
     private static class AnyCharExpr extends Pattern {
@@ -100,6 +116,9 @@ public abstract class Pattern implements Visitable {
         
         @Override 
         public boolean isSimple() { return false; }
+
+        @Override
+        public String lowerBound() { return ""; }  
     }
     
     private static class OneOfExpr extends Pattern {
@@ -119,6 +138,14 @@ public abstract class Pattern implements Visitable {
         
         @Override 
         public boolean isSimple() { return false; }
+        
+        
+        @Override
+        public String lowerBound() {
+            StringBuilder result = new StringBuilder();
+            result.appendCodePoint(charList.codePoints().min().orElse(0));
+            return result.toString();
+        }  
     }
     
     private static class GroupExpr extends Pattern {
@@ -140,6 +167,16 @@ public abstract class Pattern implements Visitable {
         
         @Override 
         public boolean isSimple() { return Stream.of(patterns).allMatch(Pattern::isSimple); }
+
+        @Override
+        public String lowerBound() {
+            StringBuilder result = new StringBuilder();
+            for (Pattern pattern : patterns) {
+                result.append(pattern.lowerBound());
+                if (!pattern.isSimple()) break;
+            }
+            return result.toString();
+        }
     }
     
     /** Match this pattern against some string.
@@ -229,5 +266,12 @@ public abstract class Pattern implements Visitable {
      * @return true if this is a simple pattern
      */
     public abstract boolean isSimple();
-
+    
+    /** Get the lower bound of the Pattern
+     * 
+     * All strings matched by the pattern must be greater than or equal to the lower bound
+     * 
+     * @return A string representing the lower bound of the pattern
+     */
+    public abstract String lowerBound();
 }
