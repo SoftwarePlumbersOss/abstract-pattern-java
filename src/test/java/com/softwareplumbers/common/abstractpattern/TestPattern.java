@@ -13,6 +13,20 @@ import static org.hamcrest.Matchers.*;
  * @author jonathan.local
  */
 public class TestPattern {
+
+    @Test
+    public void testEquals() {
+        assertThat(Pattern.of("abc123"), equalTo(Pattern.of("abc123")));
+        assertThat(Pattern.of("abc123"), not(Pattern.of("abd123")));
+        assertThat(Pattern.anyChar(), equalTo(Pattern.anyChar()));
+        assertThat(Pattern.anyChar(), not(Pattern.of("xyz")));
+        assertThat(Pattern.oneOf("123"), equalTo(Pattern.oneOf("123")));
+        assertThat(Pattern.oneOf("123"), not(Pattern.of("123")));
+        assertThat(Pattern.anyChar().atLeast(2), equalTo(Pattern.anyChar().atLeast(2)));
+        assertThat(Pattern.anyChar().atLeast(2), not(Pattern.anyChar().atLeast(1)));
+        assertThat(Pattern.of("x").atLeast(1), not(Pattern.anyChar().atLeast(1)));
+        assertThat(Pattern.of("xy").then(Pattern.anyChar()), equalTo(Pattern.of("xy").then(Pattern.anyChar())));
+    }
     
     @Test
     public void testCharSequenceLowerBound() {

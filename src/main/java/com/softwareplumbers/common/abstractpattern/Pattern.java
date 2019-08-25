@@ -9,7 +9,9 @@ import com.softwareplumbers.common.abstractpattern.visitor.Builder;
 import com.softwareplumbers.common.abstractpattern.visitor.Builders;
 import com.softwareplumbers.common.abstractpattern.visitor.Visitable;
 import com.softwareplumbers.common.abstractpattern.visitor.Visitor;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /** Abstract representation of a matching pattern.
@@ -45,6 +47,11 @@ public abstract class Pattern implements Visitable {
         
         @Override
         public String lowerBound() { return ""; }
+        
+        @Override
+        public boolean equals(Object other) {
+            return other == this;
+        }
 
     };
 
@@ -77,11 +84,20 @@ public abstract class Pattern implements Visitable {
             } else {
                 return count == 0 ? "" : pattern.lowerBound();
             }  
+        }
+        
+        public boolean equals(AtLeast other) {
+            return this.count == other.count && Objects.equals(pattern, other.pattern);
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof AtLeast && equals((AtLeast)other);
         }        
     }
     
     private static class CharSequence extends Pattern {
-        private final String sequence;
+        protected final String sequence;
         
         @Override
         public void visit(Visitor visitor) {
@@ -99,18 +115,25 @@ public abstract class Pattern implements Visitable {
         public boolean isSimple() { return true; }
         
         @Override
-        public String lowerBound() { return sequence; }  
+        public String lowerBound() { return sequence; } 
+        
+        public boolean equals(CharSequence other) {
+            return Objects.equals(sequence, other.sequence);
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof CharSequence && equals((CharSequence)other);
+        }
+
     }
     
-    private static class AnyCharExpr extends Pattern {
+    private static Pattern ANY_CHAR = new Pattern() {
         @Override
         public void visit(Visitor visitor) {
             visitor.anyCharExpr();
         }
-        
-        public AnyCharExpr() {
-        }       
-        
+                
         @Override
         public Type getType() { return Type.ANY_CHAR_EXPR; }
         
@@ -119,7 +142,12 @@ public abstract class Pattern implements Visitable {
 
         @Override
         public String lowerBound() { return ""; }  
-    }
+        
+        @Override
+        public boolean equals(Object other) {
+            return other == this;
+        }
+    };
     
     private static class OneOfExpr extends Pattern {
         private final String charList;
@@ -146,6 +174,15 @@ public abstract class Pattern implements Visitable {
             result.appendCodePoint(charList.codePoints().min().orElse(0));
             return result.toString();
         }  
+        
+        public boolean equals(OneOfExpr other) {
+            return Objects.equals(charList, other.charList);
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof OneOfExpr && equals((OneOfExpr)other);
+        }
     }
     
     private static class GroupExpr extends Pattern {
@@ -176,6 +213,15 @@ public abstract class Pattern implements Visitable {
                 if (!pattern.isSimple()) break;
             }
             return result.toString();
+        }
+        
+        public boolean equals(GroupExpr other) {
+            return Arrays.equals(patterns, other.patterns);
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof GroupExpr && equals((GroupExpr)other);
         }
     }
     
@@ -250,7 +296,7 @@ public abstract class Pattern implements Visitable {
 `    * @return a pattern that matches all of the given patterns in sequence 
      */
     public static Pattern anyChar() {
-        return new AnyCharExpr();
+        return ANY_CHAR;
     }
     
     /** Get the type of this pattern.
