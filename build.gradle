@@ -63,7 +63,7 @@ dependencies {
 }
 
 jar {
-    baseName 'abstract-query-java'
+    baseName 'abstract-pattern'
 }
 
 javadoc {
