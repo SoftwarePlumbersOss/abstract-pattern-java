@@ -21,7 +21,7 @@ import com.softwareplumbers.common.abstractpattern.Pattern.Type;
  */
 public class Builders {
     
-    private static class PatternBuilder implements Builder<Pattern> {
+    private static class RegexBuilder implements Builder<String> {
         
         public static final int[] PATTERN_SPECIAL_CHARS = { '[',']','(',')','*','+','\\' };
         
@@ -30,8 +30,8 @@ public class Builders {
         StringBuilder builder = new StringBuilder();
         
         @Override
-        public Pattern build() {
-            return Pattern.compile(builder.toString());
+        public String build() {
+            return builder.toString();
         }
 
         @Override
@@ -64,6 +64,18 @@ public class Builders {
             builder.append("[").append(escape(charList, PATTERN_SPECIAL_CHARS, '\\')).append("]");
         }
 
+    }
+    
+    private static class PatternBuilder extends DelegatingBuilder<Pattern,String> {
+
+        public PatternBuilder() {
+            super(new RegexBuilder());
+        }
+        
+        @Override
+        Pattern build(Builder<String> delegate) {
+            return Pattern.compile(delegate.build());
+        }  
     }
     
     private static class UnixWildcardBuilder extends GroupingBuilder {
@@ -151,20 +163,29 @@ public class Builders {
      * and a list of characters enclosed by square brackets [] to match any one of the characters
      * in the list.
      * 
-     * @return the pattern encoded (so far as is possible) as a Unix wildcard expression.
+     * @return a builder that encodes the pattern (so far as is possible) as a Unix wildcard expression.
      */
     public static Builder<String> toUnixWildcard() { return new UnixWildcardBuilder(); }
     
-    /** Get a builder that will create a java.util.regex.Pattern 
-     * @return the pattern encoded as a java regular expression.
+    /** Get a builder that will create a java.util.regex.Pattern.
+     * 
+     * @return a builder that encodes a pattern as a java regular expression pattern.
      */
     public static Builder<Pattern> toPattern() { return new PatternBuilder(); }
     
+    /** Get a builder that will create a java regex string
+     * 
+     * @return a builder that encodes a pattern as a java regex string
+     */
+    public static Builder<String> toRegex() { return new RegexBuilder(); }
+    
     /** 
-     *  Get a builder that will format a Pattern as a SQL-92 template string for the 'like' operator.SQL-92 syntax includes % for zero or more characters and _ for a single character.
+     *  Get a builder that will format a Pattern as a SQL-92 template string for the 'like' operator.
+     * 
+     * SQL-92 syntax includes % for zero or more characters and _ for a single character.
      *
      * @param escape character to use to escape wildcards 
-     * @return the pattern encoded (so far as is possible) as a Unix wildcard expression.
+     * @return a builder that encodes a pattern (so far as is possible) as an ANSI-92 compliant SQL LIKE expression.
      */
     public static Builder<String> toSQL92(char escape) { return new SQL92Builder(escape); }
 }
