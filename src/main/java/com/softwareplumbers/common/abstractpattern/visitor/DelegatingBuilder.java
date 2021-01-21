@@ -43,7 +43,7 @@ public abstract class DelegatingBuilder<T,U>  implements Builder<T> {
 
     @Override
     public void oneOfExpr(String charList) {
-        delegate.charSequence(charList);
+        delegate.oneOfExpr(charList);
     }
 
     @Override
