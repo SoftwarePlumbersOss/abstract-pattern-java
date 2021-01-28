@@ -17,7 +17,7 @@ import java.util.ArrayList;
  */
 public class Parsers {
     
-    private static final String[] UNIX_WILDCARD_OPERATORS = { "*", "?", "[" , "]" }; 
+    private static final String[] UNIX_WILDCARD_OPERATORS = { "*", "?", "[" , "]", "\"" }; 
     private static final String[] SQL92_WILDCARD_OPERATORS = { "%", "_" }; 
     private static final char UNIX_WILDCARD_ESCAPE = '\\';
     
@@ -27,6 +27,14 @@ public class Parsers {
             characterList.append(tokenizer.next().data);
         }
         return Pattern.oneOf(characterList.toString());
+    }
+    
+    private static Pattern parseUnixQuotedCharacterSequence(Tokenizer tokenizer, String quote) {
+        StringBuilder characterList = new StringBuilder();
+        while (tokenizer.hasNext() && !quote.contentEquals(tokenizer.current().data)) {
+            characterList.append(tokenizer.next().data);
+        }
+        return Pattern.of(characterList.toString());        
     }
     
     private static Pattern parseUnixWildcard(Tokenizer tokenizer) {
@@ -44,6 +52,8 @@ public class Parsers {
                         patterns.add(Pattern.anyChar());
                     if ("[".contentEquals(operator))
                         patterns.add(parseUnixCharacterList(tokenizer));
+                    if ("\"".contentEquals(operator))
+                        patterns.add(parseUnixQuotedCharacterSequence(tokenizer,"\""));
                     break;
             }
         }

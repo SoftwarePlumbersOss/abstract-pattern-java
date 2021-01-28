@@ -81,6 +81,28 @@ public class TestParsers {
     }    
     
     @Test
+    public void testParseUnixWildcardWithQuotedPlaceholders() throws Visitor.PatternSyntaxException {
+        Pattern pattern = Parsers.parseUnixWildcard("\"a[bc]d\"");
+        assertThat(pattern.match("abd"), equalTo(false));
+        assertThat(pattern.match("acd"), equalTo(false));
+        assertThat(pattern.match("xabd"), equalTo(false));
+        assertThat(pattern.match("abdx"), equalTo(false));
+        assertThat(pattern.match("axd"), equalTo(false));
+        assertThat(pattern.match("a[bc]d"), equalTo(true));
+    }  
+    
+    @Test
+    public void testParseUnixWildcardWithEscapeQuotedPlaceholders() throws Visitor.PatternSyntaxException {
+        Pattern pattern = Parsers.parseUnixWildcard("\\\"a[bc]d\\\"");
+        assertThat(pattern.match("\"abd\""), equalTo(true));
+        assertThat(pattern.match("\"acd\""), equalTo(true));
+        assertThat(pattern.match("x\"abd"), equalTo(false));
+        assertThat(pattern.match("\"abd\"x"), equalTo(false));
+        assertThat(pattern.match("\"axd\""), equalTo(false));
+        assertThat(pattern.match("\"a[bc]d\""), equalTo(false));
+    }  
+        
+    @Test
     public void testParseSQL92SimpleText() throws Visitor.PatternSyntaxException {
         Pattern pattern = Parsers.parseSQL92("abc",'\\');
         assertThat(pattern.match("abc"), equalTo(true));
