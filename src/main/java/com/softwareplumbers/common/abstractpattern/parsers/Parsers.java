@@ -83,6 +83,10 @@ public class Parsers {
         return parseUnixWildcard(new Tokenizer(pattern, UNIX_WILDCARD_ESCAPE, UNIX_WILDCARD_OPERATORS));
     }
     
+    public static Pattern parseUnixWildcard(String pattern, char escape) {
+        return parseUnixWildcard(new Tokenizer(pattern, escape, UNIX_WILDCARD_OPERATORS));
+    }    
+
     public static Pattern parseSQL92(String pattern, char escape) {
         return parseSQL92(new Tokenizer(pattern, escape, SQL92_WILDCARD_OPERATORS));        
     }
