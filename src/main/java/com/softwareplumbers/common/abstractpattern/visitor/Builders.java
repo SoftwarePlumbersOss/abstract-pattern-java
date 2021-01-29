@@ -23,7 +23,7 @@ public class Builders {
     
     private static class RegexBuilder implements Builder<String> {
         
-        public static final int[] PATTERN_SPECIAL_CHARS = { '[',']','(',')','*','+','\\' };
+        public static final int[] PATTERN_SPECIAL_CHARS = { '[',']','(',')','*','+','\\','?','|','.',',','^','$','{','}' };
         
         static { Arrays.sort(PATTERN_SPECIAL_CHARS); }
         
