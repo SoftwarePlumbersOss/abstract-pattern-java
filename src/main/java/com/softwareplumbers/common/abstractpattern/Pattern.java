@@ -93,7 +93,12 @@ public abstract class Pattern implements Visitable {
         @Override
         public boolean equals(Object other) {
             return other instanceof AtLeast && equals((AtLeast)other);
-        }        
+        }     
+        
+        @Override
+        public int hashCode() {
+            return pattern.hashCode() ^ count;
+        }
     }
     
     private static class CharSequence extends Pattern {
@@ -126,6 +131,10 @@ public abstract class Pattern implements Visitable {
             return other instanceof CharSequence && equals((CharSequence)other);
         }
 
+        @Override
+        public int hashCode() {
+            return sequence.hashCode();
+        }        
     }
     
     private static Pattern ANY_CHAR = new Pattern() {
@@ -183,6 +192,11 @@ public abstract class Pattern implements Visitable {
         public boolean equals(Object other) {
             return other instanceof OneOfExpr && equals((OneOfExpr)other);
         }
+        
+        @Override
+        public int hashCode() {
+            return charList.hashCode();
+        }        
     }
     
     private static class GroupExpr extends Pattern {
@@ -223,6 +237,11 @@ public abstract class Pattern implements Visitable {
         public boolean equals(Object other) {
             return other instanceof GroupExpr && equals((GroupExpr)other);
         }
+
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(patterns);
+        }                
     }
     
     /** Match this pattern against some string.
