@@ -79,26 +79,31 @@ public class Builders {
     }
     
     private static class UnixWildcardBuilder extends GroupingBuilder {
+
+        private final int escape;
+        private final int[] specialChars;
         
-        public static final int[] UNIX_SPECIAL_CHARS = { '[',']','?','*','\\' };
-        
-        static { Arrays.sort(UNIX_SPECIAL_CHARS); }
+        public UnixWildcardBuilder(int escape) {
+            this.escape = escape;
+            this.specialChars = new int[] { '[',']','?','*', escape };
+            Arrays.sort(specialChars);
+        }
 
         @Override
         void appendPattern(StringBuilder builder, Type type, String chars, int count) {
             switch(type) {
                 case AT_LEAST:
                     for (int i = 0; i < count; i++) builder.append(chars);
-                    builder.append("*");
+                    builder.append(escapeSpecial('*', escape));
                     break;
                 case CHAR_SEQUENCE:
-                    builder.append(escape(chars, UNIX_SPECIAL_CHARS, '\\'));
+                    builder.append(escape(chars, specialChars, escape));
                     break;
                 case ANY_CHAR_EXPR:
-                    builder.append("?");
+                    builder.append(escapeSpecial('?', escape));
                     break;
                 case ONE_OF_EXPR:
-                    builder.append("[").append(escape(chars, UNIX_SPECIAL_CHARS, '\\')).append("]");
+                    builder.append(escapeSpecial('[', escape)).append(escape(chars, specialChars, escape)).append(escapeSpecial(']', escape));
                     break;
                 case GROUP_EXPR:
                     builder.append(chars);
@@ -157,6 +162,14 @@ public class Builders {
             .toString();
     }
     
+    private static String escapeSpecial(int special, int escape) {
+        StringBuilder builder = new StringBuilder();
+        if (special == escape) builder.append((char)escape);
+        builder.append((char)special);
+        return builder.toString();
+    }
+
+    
     /** Get a builder that will format a Pattern as a Unix wildcard string.
      * 
      * Unix Wildcard syntax includes * for zero or more characters, ? for a single character,
@@ -165,7 +178,9 @@ public class Builders {
      * 
      * @return a builder that encodes the pattern (so far as is possible) as a Unix wildcard expression.
      */
-    public static Builder<String> toUnixWildcard() { return new UnixWildcardBuilder(); }
+    public static Builder<String> toUnixWildcard(int escape) { return new UnixWildcardBuilder(escape); }
+    
+    public static Builder<String> toUnixWildcard() { return new UnixWildcardBuilder('\\'); }
     
     /** Get a builder that will create a java.util.regex.Pattern.
      * 
