@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  *
@@ -27,6 +28,7 @@ public class Tokenizer implements Iterator<Token> {
         this.escape =escape;
         this.pos = 0;
         this.operators = Arrays.asList(operators);
+        if (Stream.of(operators).anyMatch(operator->operator.indexOf(escape) >= 0)) throw new IllegalArgumentException("Invalid escape character: " + escape);
         moveNext();
     }
     
