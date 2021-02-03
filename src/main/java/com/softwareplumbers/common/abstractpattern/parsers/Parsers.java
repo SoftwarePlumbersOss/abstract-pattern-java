@@ -7,6 +7,7 @@ package com.softwareplumbers.common.abstractpattern.parsers;
 
 import com.softwareplumbers.common.abstractpattern.Pattern;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /** Functions that parse strings into Patterns.
  * 
@@ -17,9 +18,9 @@ import java.util.ArrayList;
  */
 public class Parsers {
     
-    private static final String[] UNIX_WILDCARD_OPERATORS = { "*", "?", "[" , "]", "\"" }; 
-    private static final String[] SQL92_WILDCARD_OPERATORS = { "%", "_" }; 
-    private static final char UNIX_WILDCARD_ESCAPE = '\\';
+    public static final String[] UNIX_WILDCARD_OPERATORS = { "*", "?", "[" , "]", "\"" }; 
+    public static final String[] SQL92_WILDCARD_OPERATORS = { "%", "_" }; 
+    public static final char UNIX_WILDCARD_ESCAPE = '\\';
     
     private static Pattern parseUnixCharacterList(Tokenizer tokenizer) {
         StringBuilder characterList = new StringBuilder();
