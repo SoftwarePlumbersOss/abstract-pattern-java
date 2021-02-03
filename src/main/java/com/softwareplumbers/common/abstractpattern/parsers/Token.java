@@ -11,7 +11,7 @@ package com.softwareplumbers.common.abstractpattern.parsers;
  */
 public class Token {
     
-    enum Type { OPERATOR, CHAR_SEQUENCE };
+    public enum Type { OPERATOR, CHAR_SEQUENCE };
     
     public final Type type;
     public final CharSequence data;
