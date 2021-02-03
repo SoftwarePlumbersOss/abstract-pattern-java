@@ -56,6 +56,20 @@ public class Tokenizer implements Iterator<Token> {
         return nextToken;
     }
     
+    /** Returns a short string showing where in the input we are currently working.
+     * 
+     * Useful for creating informative error messages.
+     * 
+     * @return the status string.
+     */
+    public String getStatus() {
+        int statusFrom = pos > 10 ? pos - 10 : 0;
+        int statusTo = input.length() - pos > 10 ? pos + 10 : input.length();
+        CharSequence consumed = input.subSequence(statusFrom, pos);
+        CharSequence toConsume = input.subSequence(pos, statusTo);
+        return consumed.toString() + "^" + toConsume.toString();
+    }
+    
     private boolean matchOperator(String operator) {
         int length = operator.length();
         if (length > input.length() - pos) return false;
