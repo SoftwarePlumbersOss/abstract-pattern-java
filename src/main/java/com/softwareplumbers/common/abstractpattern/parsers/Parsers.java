@@ -27,6 +27,7 @@ public class Parsers {
         while (tokenizer.hasNext() && !"]".contentEquals(tokenizer.current().data)) {
             characterList.append(tokenizer.next().data);
         }
+        if (tokenizer.hasNext()) tokenizer.next();
         return Pattern.oneOf(characterList.toString());
     }
     
@@ -38,23 +39,32 @@ public class Parsers {
         return Pattern.of(characterList.toString());        
     }
     
-    private static Pattern parseUnixWildcard(Tokenizer tokenizer) {
+    public static Pattern parseUnixWildcard(Tokenizer tokenizer) {
         ArrayList<Pattern> patterns = new ArrayList<>();
-        while (tokenizer.hasNext()) {
+        boolean terminal = false;
+        while (tokenizer.hasNext() && !terminal) {
             switch (tokenizer.current().type) {
                 case CHAR_SEQUENCE:
                     patterns.add(Pattern.of(tokenizer.next().data.toString()));
                     break;
                 case OPERATOR:
-                    CharSequence operator = tokenizer.next().data;
-                    if ("*".contentEquals(operator)) 
+                    CharSequence operator = tokenizer.current().data;
+                    if ("*".contentEquals(operator)) {
+                        tokenizer.next();
                         patterns.add(Pattern.anyChar().atLeast(0));
-                    if ("?".contentEquals(operator))
+                    } else if ("?".contentEquals(operator)) {
+                        tokenizer.next();
                         patterns.add(Pattern.anyChar());
-                    if ("[".contentEquals(operator))
+                    } else if ("[".contentEquals(operator)) {
+                        tokenizer.next();
                         patterns.add(parseUnixCharacterList(tokenizer));
-                    if ("\"".contentEquals(operator))
+                    } else if ("\"".contentEquals(operator)) {
+                        tokenizer.next();
                         patterns.add(parseUnixQuotedCharacterSequence(tokenizer,"\""));
+                    } else {
+                        terminal = true;
+                    }
+                        
                     break;
             }
         }

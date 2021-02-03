@@ -6,7 +6,9 @@
 package com.softwareplumbers.common.abstractpattern.parsers;
 
 import com.softwareplumbers.common.abstractpattern.Pattern;
+import com.softwareplumbers.common.abstractpattern.visitor.Builders;
 import com.softwareplumbers.common.abstractpattern.visitor.Visitor;
+import java.util.stream.Stream;
 import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -135,6 +137,15 @@ public class TestParsers {
         assertThat(pattern.match("\"axd\""), equalTo(false));
         assertThat(pattern.match("\"a[bc]d\""), equalTo(false));
     }  
+    
+    private static String[] concat(String[] a, String[] b) { return Stream.concat(Stream.of(a), Stream.of(b)).toArray(String[]::new); }
+    
+    @Test
+    public void testParseUnixWildcardStopsOnUnrecognizedOperator() throws Visitor.PatternSyntaxException {
+        Tokenizer tokenizer = new Tokenizer("a?b*c|d",  concat(Parsers.UNIX_WILDCARD_OPERATORS, new String[] { "|" }));
+        Pattern pattern= Parsers.parseUnixWildcard(tokenizer);
+        assertThat(pattern.build(Builders.toUnixWildcard()), equalTo("a?b*c"));
+    }
 
     @Test
     public void testParseSQL92SimpleText() throws Visitor.PatternSyntaxException {
