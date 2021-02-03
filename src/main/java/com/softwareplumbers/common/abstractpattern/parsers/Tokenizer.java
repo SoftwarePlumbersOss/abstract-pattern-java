@@ -18,18 +18,24 @@ import java.util.stream.Stream;
 public class Tokenizer implements Iterator<Token> {
     
     private final CharSequence input;
-    private final char escape;
+    private final int escape;
     private final List<String> operators;
     private Token nextToken;
     private int pos;
     
-    public Tokenizer(CharSequence input, char escape, String... operators) {
+    public static final int NO_ESCAPE = -1;
+    
+    public Tokenizer(CharSequence input, int escape, String... operators) {
         this.input = input;
-        this.escape =escape;
+        this.escape = escape;
         this.pos = 0;
         this.operators = Arrays.asList(operators);
         if (Stream.of(operators).anyMatch(operator->operator.indexOf(escape) >= 0)) throw new IllegalArgumentException("Invalid escape character: " + escape);
         moveNext();
+    }
+    
+    public Tokenizer(CharSequence input, String... operators) {
+        this(input, NO_ESCAPE, operators);
     }
     
     private char lookahead() {
