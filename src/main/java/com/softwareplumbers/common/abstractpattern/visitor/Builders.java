@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 import com.softwareplumbers.common.abstractpattern.Pattern.Type;
+import java.util.stream.Stream;
 
 /** Builders which allow a Pattern to be transformed into various different representations.
  * 
@@ -82,28 +83,37 @@ public class Builders {
 
         private final int escape;
         private final int[] specialChars;
+        private static final int[] DEFAULT_SPECIAL_CHARS = { '[',']','?','*' };
+        private static final int[] DEFAULT_EXTRA_CHARS = {};
+        
+        public UnixWildcardBuilder(int escape, int[] specialChars) {
+            this.escape = escape;
+            this.specialChars = Stream.of(IntStream.of(DEFAULT_SPECIAL_CHARS), IntStream.of(specialChars), IntStream.of(escape))
+                .flatMapToInt(s->s)
+                .sorted()
+                .distinct()
+                .toArray();
+        }
         
         public UnixWildcardBuilder(int escape) {
-            this.escape = escape;
-            this.specialChars = new int[] { '[',']','?','*', escape };
-            Arrays.sort(specialChars);
+            this(escape, DEFAULT_EXTRA_CHARS);
         }
-
+        
         @Override
         void appendPattern(StringBuilder builder, Type type, String chars, int count) {
             switch(type) {
                 case AT_LEAST:
                     for (int i = 0; i < count; i++) builder.append(chars);
-                    builder.append(escapeSpecial('*', escape));
+                    builder.append('*');
                     break;
                 case CHAR_SEQUENCE:
                     builder.append(escape(chars, specialChars, escape));
                     break;
                 case ANY_CHAR_EXPR:
-                    builder.append(escapeSpecial('?', escape));
+                    builder.append('?');
                     break;
                 case ONE_OF_EXPR:
-                    builder.append(escapeSpecial('[', escape)).append(escape(chars, specialChars, escape)).append(escapeSpecial(']', escape));
+                    builder.append('[').append(escape(chars, specialChars, escape)).append(']');
                     break;
                 case GROUP_EXPR:
                     builder.append(chars);
@@ -161,15 +171,7 @@ public class Builders {
             .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
             .toString();
     }
-    
-    private static String escapeSpecial(int special, int escape) {
-        StringBuilder builder = new StringBuilder();
-        if (special == escape) builder.append((char)escape);
-        builder.append((char)special);
-        return builder.toString();
-    }
-
-    
+        
     /** Get a builder that will format a Pattern as a Unix wildcard string.
      * 
      * Unix Wildcard syntax includes * for zero or more characters, ? for a single character,
@@ -179,6 +181,8 @@ public class Builders {
      * @return a builder that encodes the pattern (so far as is possible) as a Unix wildcard expression.
      */
     public static Builder<String> toUnixWildcard(int escape) { return new UnixWildcardBuilder(escape); }
+    
+    public static Builder<String> toUnixWildcard(int escape, int[] extraSpecialChars) { return new UnixWildcardBuilder(escape, extraSpecialChars); }
     
     public static Builder<String> toUnixWildcard() { return new UnixWildcardBuilder('\\'); }
     

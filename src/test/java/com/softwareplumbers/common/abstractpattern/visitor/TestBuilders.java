@@ -26,7 +26,13 @@ public class TestBuilders {
     public void testCharSequenceAsUnixWildcardWithEscapes() throws Visitor.PatternSyntaxException {
         Pattern pattern = Pattern.of("ab+123");
         assertThat(pattern.build(Builders.toUnixWildcard('+')), equalTo("ab++123"));
-    }    
+    }
+    
+    @Test
+    public void testCharSequenceAsUnixWildcardWithEscapesAndExtraOperators() throws Visitor.PatternSyntaxException {
+        Pattern pattern = Pattern.of("ab+123");
+        assertThat(pattern.build(Builders.toUnixWildcard('+', new int[] { '2' })), equalTo("ab++1+23"));
+    }     
 
     @Test
     public void testAnyCharAsUnixWildcard() throws Visitor.PatternSyntaxException {
@@ -34,12 +40,6 @@ public class TestBuilders {
         assertThat(pattern.build(Builders.toUnixWildcard()), equalTo("?"));
     }
 
-    @Test
-    public void testAnyCharAsUnixWildcardWithEscape() throws Visitor.PatternSyntaxException {
-        Pattern pattern = Pattern.anyChar();
-        assertThat(pattern.build(Builders.toUnixWildcard('?')), equalTo("??"));
-    }    
-    
     @Test
     public void testOneOfAsUnixWildcard() throws Visitor.PatternSyntaxException {
         Pattern pattern = Pattern.oneOf("abc234");
