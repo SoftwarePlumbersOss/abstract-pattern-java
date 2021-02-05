@@ -82,8 +82,20 @@ public class TestBuilders {
     @Test
     public void testCharSequenceAsSQL92() throws Visitor.PatternSyntaxException {
         Pattern pattern = Pattern.of("abc123");
-        assertThat(pattern.build(Builders.toUnixWildcard()), equalTo("abc123"));
+        assertThat(pattern.build(Builders.toSQL92('\\')), equalTo("abc123"));
     }
+    
+    @Test
+    public void testCharSequenceAsSQL92WithEscape() throws Visitor.PatternSyntaxException {
+        Pattern pattern = Pattern.of("abc%12_3");
+        assertThat(pattern.build(Builders.toSQL92('\\')), equalTo("abc\\%12\\_3"));
+    }    
+
+    @Test
+    public void testCharSequenceAsSQL92WithEscapedEscape() throws Visitor.PatternSyntaxException {
+        Pattern pattern = Pattern.of("abc\\123");
+        assertThat(pattern.build(Builders.toSQL92('\\')), equalTo("abc\\\\123"));
+    }    
 
     @Test
     public void testAnyCharAsSQL92() throws Visitor.PatternSyntaxException {
@@ -94,7 +106,7 @@ public class TestBuilders {
     @Test
     public void testOneOfAsSQL92() throws Visitor.PatternSyntaxException {
         Pattern pattern = Pattern.oneOf("abc234");
-        assertThat(pattern.build(Builders.toUnixWildcard()), equalTo("[abc234]"));
+        assertThat(pattern.build(Builders.toSQL92('\\')), equalTo("_"));
     }
 
     @Test
@@ -106,7 +118,7 @@ public class TestBuilders {
         pattern = Pattern.oneOf("abc123").atLeast(0);
         assertThat(pattern.build(Builders.toSQL92('\\')), equalTo("%"));
     }
-
+    
     @Test
     public void testOneOrMoreAsSQL92() throws Visitor.PatternSyntaxException {
         Pattern pattern = Pattern.anyChar().atLeast(1);
