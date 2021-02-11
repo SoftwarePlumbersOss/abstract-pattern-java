@@ -74,7 +74,7 @@ public class Builders {
         }
         
         @Override
-        Pattern build(Builder<String> delegate) {
+        protected Pattern build(Builder<String> delegate) throws Visitor.PatternSyntaxException {
             return Pattern.compile(delegate.build());
         }  
     }
@@ -123,6 +123,42 @@ public class Builders {
             }
         }
     }
+    
+    private static class SimplePatternBuilder extends GroupingBuilder {
+
+        private final int escape;
+        private final int[] specialChars;
+        private static final int[] DEFAULT_EXTRA_CHARS = {};
+        
+        public SimplePatternBuilder(int escape, int[] specialChars) {
+            this.escape = escape;
+            this.specialChars = Stream.of(IntStream.of(specialChars), IntStream.of(escape))
+                .flatMapToInt(s->s)
+                .sorted()
+                .distinct()
+                .toArray();
+        }
+        
+        public SimplePatternBuilder(int escape) {
+            this(escape, DEFAULT_EXTRA_CHARS);
+        }
+        
+        @Override
+        void appendPattern(StringBuilder builder, Type type, String chars, int count)  throws PatternSyntaxException {
+            switch(type) {
+                case CHAR_SEQUENCE:
+                    builder.append(escape(chars, specialChars, escape));
+                    break;
+                case GROUP_EXPR:
+                    builder.append(chars);
+                    break;
+                case EMPTY:
+                    break;
+                default:
+                    throw new PatternSyntaxException("Not a simple pattern");
+            }
+        }
+    }    
     
     private static class SQL92Builder extends GroupingBuilder {
     
@@ -185,6 +221,13 @@ public class Builders {
     public static Builder<String> toUnixWildcard(int escape, int[] extraSpecialChars) { return new UnixWildcardBuilder(escape, extraSpecialChars); }
     
     public static Builder<String> toUnixWildcard() { return new UnixWildcardBuilder('\\'); }
+    
+    public static Builder<String> toSimplePattern(int escape, int[] specialChars) { return new SimplePatternBuilder(escape, specialChars); }
+
+    public static Builder<String> toSimplePattern(int escape) { return new SimplePatternBuilder(escape, new int[0]); }
+
+    public static Builder<String> toSimplePattern() { return new SimplePatternBuilder('\\', new int[0]); }
+
     
     /** Get a builder that will create a java.util.regex.Pattern.
      * 

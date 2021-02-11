@@ -105,7 +105,7 @@ public abstract class Pattern implements Visitable {
         protected final String sequence;
         
         @Override
-        public void visit(Visitor visitor) {
+        public void visit(Visitor visitor)  throws Visitor.PatternSyntaxException {
             visitor.charSequence(sequence);
         }
         
@@ -139,7 +139,7 @@ public abstract class Pattern implements Visitable {
     
     private static Pattern ANY_CHAR = new Pattern() {
         @Override
-        public void visit(Visitor visitor) {
+        public void visit(Visitor visitor)  throws Visitor.PatternSyntaxException {
             visitor.anyCharExpr();
         }
                 
@@ -162,7 +162,7 @@ public abstract class Pattern implements Visitable {
         private final String charList;
         
         @Override
-        public void visit(Visitor visitor) {
+        public void visit(Visitor visitor)  throws Visitor.PatternSyntaxException {
             visitor.oneOfExpr(charList);
         }
         

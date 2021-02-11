@@ -10,5 +10,5 @@ package com.softwareplumbers.common.abstractpattern.visitor;
  * @author jonathan.local
  */
 public interface Builder<T> extends Visitor {
-    T build();
+    T build() throws Visitor.PatternSyntaxException;
 }

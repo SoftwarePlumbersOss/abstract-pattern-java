@@ -15,14 +15,14 @@ public abstract class DelegatingBuilder<T,U>  implements Builder<T> {
     
     private Builder<U> delegate;
 
-    abstract T build(Builder<U> delegate);
+    protected abstract T build(Builder<U> delegate) throws Visitor.PatternSyntaxException;
     
     public DelegatingBuilder(Builder<U> delegate) {
         this.delegate = delegate;
     }
     
     @Override
-    public T build() {
+    public T build()  throws Visitor.PatternSyntaxException {
         return build(delegate);
     }
 
@@ -32,17 +32,17 @@ public abstract class DelegatingBuilder<T,U>  implements Builder<T> {
     }
 
     @Override
-    public void anyCharExpr() {
+    public void anyCharExpr()  throws PatternSyntaxException {
         delegate.anyCharExpr();
     }
 
     @Override
-    public void charSequence(String chars) {
+    public void charSequence(String chars)  throws PatternSyntaxException {
         delegate.charSequence(chars);
     }
 
     @Override
-    public void oneOfExpr(String charList) {
+    public void oneOfExpr(String charList)  throws PatternSyntaxException {
         delegate.oneOfExpr(charList);
     }
 
@@ -52,7 +52,7 @@ public abstract class DelegatingBuilder<T,U>  implements Builder<T> {
     }
 
     @Override
-    public void beginGroup() {
+    public void beginGroup()  throws PatternSyntaxException {
         delegate.beginGroup();
     }
     

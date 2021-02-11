@@ -16,9 +16,9 @@ public interface Visitor {
     }
     
     void atLeastExpr(int count) throws PatternSyntaxException;
-    void anyCharExpr();
-    void charSequence(String chars);
-    void oneOfExpr(String charList);
+    void anyCharExpr() throws PatternSyntaxException;
+    void charSequence(String chars) throws PatternSyntaxException;
+    void oneOfExpr(String charList) throws PatternSyntaxException;
     void endGroup() throws PatternSyntaxException;
-    void beginGroup();
+    void beginGroup() throws PatternSyntaxException;
 }
