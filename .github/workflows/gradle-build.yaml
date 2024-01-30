@@ -1,0 +1,22 @@
+name: Build and push to maven repository
+
+on:
+  push:
+    tags : ['deploy.*']
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build and push Docker image
+        uses: SoftwarePlumbers/gradle-rhel-docker@deploy.0.9.2
+        with:
+          grade-task: publish
+
