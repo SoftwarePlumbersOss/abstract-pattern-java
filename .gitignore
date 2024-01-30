@@ -9,3 +9,5 @@ daemon
 native
 jdks
 notifications
+/.github/
+/.tmp/
