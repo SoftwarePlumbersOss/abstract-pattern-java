@@ -6,17 +6,13 @@ dependencies {
     markdownDoclet "org.jdrupes.mdoclet:doclet:4.1.0"
 }
 
-String propValue(String propName, String defValue) {
-    (project.hasProperty(propName) && project.getProperty(propName)) ? project.getProperty(propName) : defValue
-}
-
 group = "com.softwareplumbers.oss"
 
 /* Fallback for version name - get the first tag describing the version in place */
 def GitVersionName = "git describe --tags".execute().text.split('\n')[0].trim();
 
 /* the env var GITHUB_REF_NAME will take precedence over GitVersionName. Remove the 'deploy' prefix */
-version = propValue("GITHUB_REF_NAME", GitVersionName).replace('deploy.','');
+version = (System.getenv('GITHUB_REF_NAME') ?: GitVersionName).replace('deploy.','');
 
 def SNAPSHOT_BUILDS = ["master"];
 
